@@ -7,21 +7,19 @@ class ControllerExtensionModuleCalltrackingJS extends Controller {
 	public function index() {
 
 		//Load language file
-    $this->load->language('extension/module/calltracking_js');
+    	$this->load->language('extension/module/calltracking_js');
 
-		//Set title from language file
-		$this->document->setTitle($this->language->get('heading_title'));
+    	$store_id = 0;
 
-		//Load settings model
+
 		$this->load->model('setting/setting');
 
-		//Save settings
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-			$this->model_setting_setting->editSetting('calltracking_js', $this->request->post);
+			$this->model_setting_setting->editSetting('calltrackingjs', $this->request->post);
 
 			$this->session->data['success'] = $this->language->get('text_success');
 
-			$this->response->redirect($this->url->link('extension/extension', 'token=' . $this->session->data['token'], 'SSL'));
+			$this->response->redirect($this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=module', true));
 		}
 
 		$text_strings = array(
@@ -31,6 +29,12 @@ class ControllerExtensionModuleCalltrackingJS extends Controller {
 				'button_add_module',
 				'button_remove',
 				'placeholder',
+				'entry_code',
+				'text_signup',
+				'entry_status',
+				'error_code',
+				'text_enabled',
+				'text_disabled'
 		);
 
 		foreach ($text_strings as $text) {
@@ -45,57 +49,63 @@ class ControllerExtensionModuleCalltrackingJS extends Controller {
 			$data['error_warning'] = '';
 		}
 
+		if (isset($this->error['code'])) {
+			$data['error_code'] = $this->error['code'];
+		} else {
+			$data['error_code'] = '';
+		}
+
 
   		$data['breadcrumbs'] = array();
 
    		$data['breadcrumbs'][] = array(
        		'text'      => $this->language->get('text_home'),
-			'href'      => $this->url->link('common/dashboard', 'token=' . $this->session->data['token'], 'SSL'),
+			'href'      => $this->url->link('common/dashboard', 'token=' . $this->session->data['token'], 'true'),
       		'separator' => false
    		);
 
    		$data['breadcrumbs'][] = array(
        		'text'      => $this->language->get('text_module'),
-			'href'      => $this->url->link('extension/extension', 'token=' . $this->session->data['token'], 'SSL'),
+			'href'      => $this->url->link('extension/extension', 'token=' . $this->session->data['token'], 'true'),
       		'separator' => ' :: '
    		);
 
    		$data['breadcrumbs'][] = array(
        		'text'      => $this->language->get('heading_title'),
-			'href'      => $this->url->link('extension/module/calltracking_js', 'token=' . $this->session->data['token'], 'SSL'),
+			'href'      => $this->url->link('extension/module/calltracking_js', 'token=' . $this->session->data['token'], 'true'),
       		'separator' => ' :: '
    		);
 
-		$data['action'] = $this->url->link('extension/module/calltracking_js', 'token=' . $this->session->data['token'], 'SSL');
+		$data['action'] = $this->url->link('extension/module/calltracking_js', '&token=' . $this->session->data['token'], '&store_id=' . $store_id, true);
 
-		$data['cancel'] = $this->url->link('extension/extension', 'token=' . $this->session->data['token'], 'SSL');
+		$data['cancel'] = $this->url->link('extension/extension', 'token=' . $this->session->data['token'], true);
+
+		$data['token'] = $this->session->data['token'];
 
 
-		//Check if multiple instances of this module
-		$data['modules'] = array();
-
-		if (isset($this->request->post['calltracking_js_module'])) {
-			$data['modules'] = $this->request->post['calltracking_js_module'];
-		} elseif ($this->config->get('calltracking_js_module')) {
-			$data['modules'] = $this->config->get('calltracking_js_module');
+		if (isset($this->request->post['calltrackingjs_code'])) {
+			$data['calltrackingjs_code'] = $this->request->post['calltrackingjs_code'];
+		} else {
+			$data['calltrackingjs_code'] = $this->model_setting_setting->getSettingValue('calltrackingjs_code', $store_id);
 		}
-
-		//Prepare for display
-		$this->load->model('design/layout');
-
-		$data['layouts'] = $this->model_design_layout->getLayouts();
+		
+		if (isset($this->request->post['calltrackingjs_status'])) {
+			$data['calltrackingjs_status'] = $this->request->post['calltrackingjs_status'];
+		} else {
+			$data['calltrackingjs_status'] = $this->model_setting_setting->getSettingValue('calltrackingjs_status', $store_id);
+		}
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
 		//Send the output
-		$this->response->setOutput($this->load->view('extension/module/calltracking_js.tpl', $data));
+		$this->response->setOutput($this->load->view('extension/module/calltracking_js', $data));
 	}
 
 	/*
 	 *
-	 * Check that user actions are authorized
+	 * Check that user actions are authorized && code area is filled
 	 *
 	 */
 	private function validate() {
@@ -103,11 +113,11 @@ class ControllerExtensionModuleCalltrackingJS extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!$this->error) {
-			return TRUE;
-		} else {
-			return FALSE;
+		if (!$this->request->post['calltrackingjs_code']) {
+			$this->error['code'] = $this->language->get('error_code');
 		}
+
+		return !$this->error;
 	}
 
 

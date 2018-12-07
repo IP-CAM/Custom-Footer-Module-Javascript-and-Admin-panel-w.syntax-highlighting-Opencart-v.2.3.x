@@ -24,9 +24,33 @@
         <h3 class="panel-title"><i class="fa fa-cogs"></i> <?php echo $heading_title; ?></h3>
       </div>
       <div class="panel-body">
-		<p><?php echo $placeholder; ?></p>
-		<form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-calltracking_js" class="form-horizontal">
-          
+		<form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-calltrackingjs" class="form-horizontal">
+          <div class="alert alert-info"><i class="fa fa-info-circle"></i> <?php echo $text_signup; ?>
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-calltrackingjs_code"><?php echo $entry_code; ?></label>
+            <div class="col-sm-10">
+              <textarea name="calltrackingjs_code" rows="5" placeholder="<?php echo $entry_code; ?>" id="input-calltrackingjs_code" class="form-control"><?php echo $calltrackingjs_code; ?></textarea>
+              <?php if ($error_code) { ?>
+              <div class="text-danger"><?php echo $error_code; ?></div>
+              <?php } ?>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-calltrackingjs_status"><?php echo $entry_status; ?></label>
+            <div class="col-sm-10">
+              <select name="calltrackingjs_status" id="input-calltrackingjs_status" class="form-control">
+                <?php if ($calltrackingjs_status) { ?>
+                <option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+                <option value="0"><?php echo $text_disabled; ?></option>
+                <?php } else { ?>
+                <option value="1"><?php echo $text_enabled; ?></option>
+                <option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+                <?php } ?>
+              </select>
+            </div>
+          </div>
         </form>
       </div>
     </div>
